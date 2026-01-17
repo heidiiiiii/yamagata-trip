@@ -1402,7 +1402,7 @@
                              <h4 class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="phone"></i> 緊急狀況聯繫</h4>
                              <p class="text-base font-medium leading-relaxed font-bold">
                                  外交部專線：0800-085-095<br>
-                                 駐札幌辦事處：+81-11-222-2930<br>
+                                 駐日辦事處：(81-3) 32807811<br>
                                  緊急熱線：110 (警) / 119 (救護) 表明台灣人
                              </p>
                          </div>
@@ -1422,11 +1422,11 @@
 
                     let reminderMsg = "";
                     if (currentView === 1) reminderMsg = "護照和SIM卡記得要帶！！";
-                    else if (currentView === 3) reminderMsg = "07:15 準時出發，一定要早起！";
-                    else if (currentView === 4) reminderMsg = "08:30 接駁車會準時來接！";
-                    else if (currentView === 5) reminderMsg = "12:45 接駁車,11:00 前要進湯咖哩！";
+                    else if (currentView === 3) reminderMsg = "12:40 銀山莊接駁車會準時出發！";
+                    else if (currentView === 4) reminderMsg = "13:33 新幹線回東京！";
+                    // else if (currentView === 5) reminderMsg = "12:45 接駁車,11:00 前要進湯咖哩！";
                     else if (currentView === 6) reminderMsg = "今天的時間是自由的～";
-                    else if (currentView === 7) reminderMsg = "機場巴士 15:20/15:30";
+                    else if (currentView === 8) reminderMsg = "Skyliner前往機場 16:20/16:40/17:00";
 
                     if (reminderMsg) {
                         container.innerHTML += `<div class="relative z-10 mb-4 bg-[#fde8e8] rounded-2xl p-4 flex items-center gap-3 shadow-sm"><i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i><p class="text-base text-red-700 font-bold leading-tight">${reminderMsg}</p></div>`;
