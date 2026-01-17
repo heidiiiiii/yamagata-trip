@@ -1,0 +1,1550 @@
+<!doctype html>
+<html lang="zh-TW">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>2026 Yamagata & Tokyo Family Trip</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://unpkg.com/lucide@latest"></script>
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap");
+            body {
+                font-family: "Noto Sans TC", sans-serif;
+                background-color: #f1f5f8; /* 極淺莫蘭迪藍灰底色 */
+                color: #4a5568;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .no-scrollbar::-webkit-scrollbar {
+                display: none;
+            }
+            .no-scrollbar {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .glass {
+                background: rgba(255, 255, 255, 0.92);
+                backdrop-filter: blur(12px);
+                -webkit-backdrop-filter: blur(12px);
+            }
+            .expand-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+                opacity: 0;
+            }
+            .expanded .expand-content {
+                max-height: 4000px;
+                opacity: 1;
+                transition: max-height 0.6s ease-in-out;
+            }
+            .snow-particle {
+                position: fixed;
+                background: white;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 0;
+                opacity: 0.5;
+            }
+            @keyframes snowfall {
+                0% {
+                    transform: translateY(-10vh) translateX(0);
+                }
+                100% {
+                    transform: translateY(110vh) translateX(20px);
+                }
+            }
+            #translation-modal {
+                display: none;
+                position: fixed;
+                inset: 0;
+                z-index: 100;
+                background: rgba(109, 123, 134, 0.98);
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+                animation: fadeIn 0.2s ease-out;
+            }
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
+            }
+            .check-item input[type="checkbox"]:checked + div {
+                background-color: #92afd6;
+                border-color: #92afd6;
+            }
+            .check-item input[type="checkbox"]:checked + div::after {
+                content: "✓";
+                color: white;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+            }
+            .check-item input[type="checkbox"]:checked ~ span {
+                text-decoration: line-through;
+                opacity: 0.5;
+                color: #8a9da8;
+            }
+            /* 修正：直線細化且精確對齊中心 */
+            .timeline-line::before {
+                content: "";
+                position: absolute;
+                left: 40px; /* 精確對齊 16px padding + 24px (w-12一半) */
+                top: 20px;
+                bottom: 20px;
+                width: 1px;
+                background: rgba(146, 175, 214, 0.25); /* 再度降低細度與透明度 */
+                z-index: 0;
+            }
+        </style>
+    </head>
+    <body class="pb-24">
+        <div id="snow-container"></div>
+        <!-- 放大對話模組 -->
+        <div id="translation-modal" onclick="closeTranslation()">
+            <div class="text-center w-full max-w-sm px-6">
+                <p id="modal-jp" class="text-white text-5xl md:text-6xl font-bold leading-tight mb-8"></p>
+                <p id="modal-en" class="text-[#E3EDF5] text-xl mb-6"></p>
+                <p id="modal-pron" class="text-[#c8dae8] text-xl md:text-2xl mb-12 italic"></p>
+                <p id="modal-zh" class="text-slate-200 text-2xl border-t border-white/20 pt-8"></p>
+                <p class="text-[#9FB5C3] text-[10px] mt-12 uppercase tracking-[0.3em]">點擊螢幕任何地方關閉</p>
+            </div>
+        </div>
+        <!-- 封面區塊 (無外框) -->
+        <div class="bg-[#92afd6] pt-8 pb-6 px-8 text-center relative overflow-hidden">
+            <div class="absolute inset-0 opacity-20 pointer-events-none">
+                <div style="position: absolute; top: 10%; left: 10%">
+                    <i data-lucide="snowflake" class="w-12 h-12 text-white/30"></i>
+                </div>
+                <div style="position: absolute; bottom: 10%; right: 10%">
+                    <i data-lucide="snowflake" class="w-16 h-16 text-white/30"></i>
+                </div>
+            </div>
+            <div class="relative z-10">
+                <p class="text-[#c8dae8] text-[10px] font-bold tracking-[0.2em] uppercase mb-0.5">Family Trip</p>
+                <h1 class="text-white text-3xl font-extrabold tracking-tighter mb-0.5">Yamagata & Tokyo</h1>
+                <p class="text-[#b1cce7] text-[10px] font-medium tracking-[0.3em] uppercase">2026 WINTER</p>
+                <div class="w-10 h-0.5 bg-white/40 mx-auto rounded-full mt-3"></div>
+            </div>
+        </div>
+        <!-- Sticky Header -->
+        <header class="sticky top-0 z-40 glass px-6 py-4 flex justify-between items-center shadow-md">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] bg-[#8A9DA8] text-white px-1.5 py-0.5 font-bold tracking-widest rounded-sm"
+                        >JAN 2026</span
+                    >
+                    <h1 class="text-base font-bold text-[#6D7B86] tracking-tight leading-none" id="header-title">
+                        行程總覽 🏠
+                    </h1>
+                </div>
+                <p class="text-[10px] text-[#9FB5C3] font-medium mt-1" id="header-subtitle">Trip Overview</p>
+            </div>
+            <div class="text-right">
+                <div class="flex items-center justify-end text-[#92afd6] font-bold leading-none">
+                    <span class="text-sm" id="temp-val">-5°C</span>
+                    <i data-lucide="snowflake" class="w-3.5 h-3.5 ml-1"></i>
+                </div>
+                <p class="text-[9px] text-[#9FB5C3] font-bold tracking-widest uppercase mt-0.5" id="header-loc">
+                    Yamagata
+                </p>
+            </div>
+        </header>
+        <main class="max-w-md mx-auto px-4 py-4 relative" id="main-content"></main>
+        <!-- 底部導航 (w-fit 置中完整顯示) -->
+        <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-fit max-w-[95%] glass rounded-3xl shadow-2xl p-1 z-50">
+            <div class="flex items-center gap-2 px-2 h-12">
+                <button
+                    onclick="setView('home')"
+                    id="btn-home"
+                    class="w-8 h-8 rounded-xl flex items-center justify-center transition-all bg-[#92afd6] text-white shadow-lg"
+                >
+                    <i data-lucide="home" class="w-4 h-4"></i>
+                </button>
+                <button
+                    onclick="setView('checklist')"
+                    id="btn-checklist"
+                    class="w-8 h-8 rounded-xl flex items-center justify-center transition-all text-[#8A9DA8] hover:bg-[#c8dae8]"
+                >
+                    <i data-lucide="list-checks" class="w-4 h-4"></i>
+                </button>
+                <button
+                    onclick="setView('tips')"
+                    id="btn-tips"
+                    class="w-8 h-8 rounded-xl flex items-center justify-center transition-all text-[#8A9DA8] hover:bg-[#c8dae8]"
+                >
+                    <i data-lucide="lightbulb" class="w-4 h-4"></i>
+                </button>
+                <button
+                    onclick="setView('lang')"
+                    id="btn-lang"
+                    class="w-8 h-8 rounded-xl flex items-center justify-center transition-all text-[#8A9DA8] hover:bg-[#c8dae8]"
+                >
+                    <i data-lucide="languages" class="w-4 h-4"></i>
+                </button>
+                <div class="w-[1px] h-5 bg-[#BFCCD4] mx-1"></div>
+                <div class="flex gap-1">
+                    <button
+                        onclick="setView(1)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D1
+                    </button>
+                    <button
+                        onclick="setView(2)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D2
+                    </button>
+                    <button
+                        onclick="setView(3)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D3
+                    </button>
+                    <button
+                        onclick="setView(4)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D4
+                    </button>
+                    <button
+                        onclick="setView(5)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D5
+                    </button>
+                    <button
+                        onclick="setView(6)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D6
+                    </button>
+                    <button
+                        onclick="setView(7)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D7
+                    </button>
+                    <button
+                        onclick="setView(8)"
+                        class="day-btn w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold text-[#8A9DA8]"
+                    >
+                        D8
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <script>
+
+            // ===== 天氣座標表（Step 1）=====
+            const locationCoords = {
+                Yamagata: { lat: 38.2554, lon: 140.3396 },
+                Zao: { lat: 38.1711, lon: 140.4200 },
+                Ginzan: { lat: 38.5686, lon: 140.5316 },
+                Tokyo: { lat: 35.6762, lon: 139.6503 },
+                Kamakura: { lat: 35.3192, lon: 139.5467 },
+                "Gala Yuzawa": { lat: 36.9356, lon: 138.8093 },
+            };
+
+            // ===== 天氣抓取函式（Step 2）=====
+            async function updateTemperatureByLocation(locationName) {
+                const coords = locationCoords[locationName];
+                const tempEl = document.getElementById("temp-val");
+
+                if (!coords) {
+                    tempEl.innerText = "--°C";
+                    return;
+                }
+
+                try {
+                    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&current_weather=true`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+
+                    const temp = Math.round(data.current_weather.temperature);
+                    tempEl.innerText = `${temp}°C`;
+                } catch (err) {
+                    console.warn("Weather fetch failed:", err);
+                    tempEl.innerText = "--°C";
+                }
+            }
+
+            const tripData = {
+                1: {
+                    title: "抵達東京 ➔ 山形 ❄️",
+                    date: "2026 / 01 / 22 (TUE)",
+                    location: "Yamagata",
+                    events: [
+                        {
+                            time: "23:00",
+                            type: "交通",
+                            title: "包車前往桃園機場 🚗",
+                            loc: "桃園機場第一航廈",
+                            color: "blue",
+                            note: "記得檢查護照及SIM卡是否有帶！",
+                        },
+                        {
+                            time: "00:10",
+                            type: "交通",
+                            title: "桃園機場T1報到 🛫",
+                            loc: "TPE T1 樂桃 MM620",
+                            color: "blue",
+                            transport: "✈️ 樂桃航空 MM620\n起飛 TPE桃園T1 02:10 \n 抵達 NRT成田T1 06:40",
+                            note: "\n1. 樂桃為廉航，報到櫃檯於起飛前 50 分鐘準時關閉。\n2. 第一航廈人潮多，建議 00:10 抵達櫃檯。\n3. 確認手提行李限重 7kg 以內，三邊合計 < 115CM。",
+                            intro: "請檢查 Visit Japan Web 的 QR Code 截圖是否已保存。✨",
+                        },
+                        {
+                            time: "06:40",
+                            type: "交通",
+                            title: "抵達成田機場T1 ❄️",
+                            loc: "成田 (NRT) 第一航廈",
+                            color: "blue",
+                            note: "\n• 落地開通SIM卡，回傳簡訊「DA234」至 935824\n• 準備好Visit Japan Web 的 QR Code加速通關",
+                            intro: "順利降落！辦理入境手續。",
+                        },
+                        {
+                            time: "08:12",
+                            type: "交通",
+                            title: "成田特快 N'EX 前往東京車站 🚆",
+                            loc: "成田空港站 (JR)",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>JR N’ex 成田特快</b>\nNarita Express 2 07:20-08:52\nNarita Express 4 08:12-09:20📍\nNarita Express 6 08:53-09:54",
+                            note: "\n" + "🚇 JR Pass：\n• 入境後跟著「鐵道」的電扶梯至B1\n• 找JR售票機取JR Pass + 指定席票券\n• 進站閘門在JR售票處旁邊\n• JR Pass + 指定席票券一起放入後取回",
+                            intro: "已預先劃位，車程約40分鐘",
+                        },
+                        {
+                            time: "09:20",
+                            type: "交通",
+                            title: "新幹線前往山形 🚅",
+                            loc: "東京車站",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>山形新幹線（Yamagata Shinkansen）20～23 月台</b>\n" +
+                                "翼（Tsubasa）133　10:00–12:43 📍\n" +
+                                "翼（Tsubasa）135　11:00–13:44\n" +
+                                "翼（Tsubasa）137　12:00–14:42",
+                            note:
+                                "\n" +
+                                "🚂 東京車站\n" +
+                                "• B1 出來（丸之內地下中央口附近）\n" +
+                                "• GRANSTA TOKYO – Square Zero Area\n" +
+                                "  <blockquote>\n" +
+                                "  • 飯糰：<a href='https://maps.app.goo.gl/L7vGwV121yVFMHWz7' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>TARO TOKYO ONIGIRI グランスタ東京</a>\n" +
+                                "  • 咖喱麵包：<a href='https://maps.app.goo.gl/u2BuKbg8z2j2oi1h8' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Zopf Curry Pan Senmonten</a>\n" +
+                                "  • 麵包店：<a href='https://maps.app.goo.gl/Hqx65vY2PYMgMXVR7' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>BURDIGALA TOKYO ブルディガラ東京</a>\n" +
+                                "  </blockquote>\n" +
+                                "• 買完後搭電梯到 1 樓，找 20～23 月台\n" +
+                                "• 1 樓有兩間便利商店\n" +
+                                "• 月台上應該也有販賣機",
+                            intro: "已預先劃位，車程約 2 小時 50 分鐘",
+                        },
+                        {
+                            time: "13:00",
+                            type: "住宿",
+                            title: "山形飯店寄放行李 🏨",
+                            loc: "山形站前大和 ROYNET 酒店",
+                            color: "green",
+                            note: "\n山形車站東口步行約3分鐘\n14:00可check in，先寄放行李。",
+                            intro: "抵達飯店！先放重物再出發。📦",
+                        },
+                        {
+                            time: "13:30",
+                            type: "用餐",
+                            title: "午餐 🍽️ 山形車站",
+                            loc: "Yamagata Station",
+                            color: "red",
+                            note: 
+                                "\n" +
+                                "• <a href='https://maps.app.goo.gl/xAcUKV6vJ4WTeLW7A' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>目利的銀次(海鮮料理) 山形站前店</a>\n" +
+                                "• <a href='https://maps.app.goo.gl/oGG2smSCPRW69nqp9' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>平田牧場(炸豬排)</a>\n" +
+                                "• 或是附近商場找餐廳吃",
+                            intro: "車站附近找餐廳吃飯。🥢",
+                        },
+                        {
+                            time: "14:30",
+                            type: "觀光",
+                            title: "山形市區散策 🛍️",
+                            loc: "山形",
+                            color: "purple",
+                            note: 
+                                "\n" +
+                                "• <a href='https://maps.app.goo.gl/Rc1eCJwYyZc7yM3a7' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>霞城公園(山形城)</a>：主城好像還沒挖出來\n" +
+                                "• <a href='https://maps.app.goo.gl/fY5gEewFAa6twoe49' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>文翔館</a>\n" +
+                                "• <a href='https://maps.app.goo.gl/WFRRSwP6jpnMthKP6' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>水の町屋 七日町御殿堰</a>\n" +
+                                "• <a href='https://maps.app.goo.gl/NrVqwm85k28X64we9' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>山形まるごと館 紅之藏</a>：蕎麥麵、農產品、試喝山形酒\n" +
+                                "• <a href='https://maps.app.goo.gl/VvMMaSQQjGEtcCdW6' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>MI PLAZA 山形 </a>：百元商店 Seria (10:00–18:00) \n" +
+                                "• <a href='https://maps.app.goo.gl/2AWAUMF3ome7EfyZ9' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>S-PAL</a>：B1超市 Jupiter (10:00–19:30) \n",
+                            intro: "午餐後可以在附近逛逛，再回飯店休息。",
+                        },
+                        {
+                            time: "18:15",
+                            type: "用餐",
+                            title: "晚餐 🥩 登起波",
+                            loc: "登起波 山形店 (米澤牛)",
+                            color: "red",
+                            transport: "🏨 飯店樓下的壽喜燒店！",
+                            note: "已訂位18:15，確認號碼: 2PKHT4",
+                            intro: "登起波是百年老店，來到山形必吃『米澤牛』！",
+                        },
+                        {
+                            time: "20:00",
+                            type: "購物",
+                            title: "MaxValu超市+山形車站逛逛 🎒",
+                            loc: "MaxValu Yamagata Station West",
+                            color: "orange",
+                            transport: "🚇 穿越山形車站，飯店步行約10分鐘。",
+                            intro: "MaxValu超市採購！",
+                        },
+                        {
+                            time: "21:00",
+                            type: "住宿",
+                            title: "回飯店休息 💤🌙",
+                            loc: "山形站前大和 ROYNET 酒店",
+                            color: "green",
+                            intro: "結束第一天行程，早點睡覺明天上藏王樹冰。😴",
+                        },
+                    ],
+                },
+                2: {
+                    title: "藏王冰樹 ❄️",
+                    date: "2026 / 01 / 21 (WED)",
+                    location: "Zao",
+                    events: [
+                        {
+                            time: "08:00",
+                            type: "用餐",
+                            title: "早餐 🍙 飯店早餐，有日式西式兩種",
+                            loc: "登起波 山形店 (米澤牛)",
+                            color: "red",
+                            intro: "<a href='https://nicklee.tw/3262/roynet-yamagata/' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>山形住宿-早餐是米澤牛專門店「登起波」</a>",
+                        },
+                        {
+                            time: "09:00",
+                            type: "交通",
+                            title: "前往藏王溫泉區 🚇",
+                            loc: "藏王溫泉巴士總站",
+                            color: "blue",
+                            transport:
+                                "🚌 <b>巴士：山形駅前1番</b> ¥1,200\n07:40-08:20\n08:40-09:17\n09:20-09:57\n" +
+                                "  <blockquote>\n" +
+                                "🚕 <b>計程車</b> ¥8,000",
+                            note: "記得帶毛巾出門泡溫泉用。",
+                            intro: "搭乘巴士或計程車前往藏王溫泉區，車程約30~40分鐘。",
+                        },
+                        {
+                            time: "10:00",
+                            type: "觀光",
+                            title: "溫泉體驗：湯之花茶屋 ♨️",
+                            loc: "湯之花茶屋 新左衛門之湯 · Yamagata, Yamagata",
+                            color: "purple",
+                            note: "日歸溫泉 ¥1,000/人（不含毛巾）",
+                            intro: "雪地露天溫泉，身體泡暖後再去逛逛！",
+                        },
+                        {
+                            time: "11:30",
+                            type: "觀光",
+                            title: "山形酒展示館 🍶",
+                            loc: "山形酒展示館＆湯煙屋台小菜",
+                            color: "purple",
+                            note: "\n• 試飲杯300-700日圓不等，也有set的組合。\n• 最好在泡完溫泉後再來，酒後泡溫泉很危險。",
+                            intro: "可以試飲各種日本酒，種類眾多，也帶附有簡單介紹。",
+                        },
+                        {
+                            time: "12:00",
+                            type: "用餐",
+                            title: "午餐 🍜 藏王溫泉街",
+                            loc: "Zao Onsen",
+                            color: "red",
+                            note:
+                                "\n" +
+                                "• <a href='https://maps.app.goo.gl/fTDv2Sy7DvYoWsfK9' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>山口餅屋(やまぐちもちや)</a>：麻糬\n" +
+                                "• <a href='https://maps.app.goo.gl/2tdzgmNw7eMJXDwe8' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Okumura Sobaya 中華そば 奥村</a>：拉麵\n",
+                            intro: "藏王溫泉街逛逛吃吃，或是搭纜車到山上再吃。",
+                        },
+                        {
+                            time: "13:00",
+                            type: "觀光",
+                            title: "藏王纜車 & 冰樹 🚠",
+                            loc: "藏王纜車山麓站",
+                            color: "purple",
+                            note: "已預約 13:00~13:30纜車優先券¥5,500，風大纜車可能停駛。",
+                            intro: "搭乘兩段式纜車直上山頂，觀賞極為壯觀的自然奇景『雪怪』冰樹。記得全副武裝保暖！🧤",
+                        },
+                        {
+                            time: "15:00",
+                            type: "觀光",
+                            title: "藏王溫泉街 ❄️",
+                            loc: "Zao Onsen",
+                            color: "purple",
+                            intro: "如果有還沒來得及逛的店，可以下山再逛。",
+                        },
+                        {
+                            time: "16:00",
+                            type: "交通",
+                            title: "搭車返回山形 🚌",
+                            loc: "藏王溫泉巴士總站",
+                            color: "blue",
+                            transport:
+                                "🚌 <b>巴士：山形駅前1番</b> ¥1,200\n14:20-15:05\n15:20-16:05\n16:20-17:05\n" +
+                                "  <blockquote>\n" +
+                                "🚕 <b>計程車</b> ¥8,000",
+                            intro: "搭乘巴士或計程車回飯店，車程約30~40分鐘。",
+                        },
+                        {
+                            time: "17:00",
+                            type: "住宿",
+                            title: "飯店簡單休息+放東西 🏨",
+                            loc: "山形站前大和 ROYNET 酒店",
+                            color: "green",
+                            intro: "修整一下再出門吃晚餐。",
+                        },
+                        {
+                            time: "18:00",
+                            type: "用餐",
+                            title: "晚餐 🥩 山形山牛燒肉",
+                            loc: "燒肉名匠 山牛",
+                            color: "red",
+                            note: "還沒訂到位...",
+                            intro: "食材是店家進貨一整頭牛來分切，所以可以吃到限量的特殊部位，而且價格也中等，很多在地人光顧。",
+                        },
+                        {
+                            time: "20:00",
+                            type: "購物",
+                            title: "MaxValu超市+山形車站逛逛 🎒",
+                            loc: "MaxValu Yamagata Station West",
+                            color: "orange",
+                            transport: "🚇 穿越山形車站，飯店步行約10分鐘。",
+                            intro: "MaxValu超市採購！",
+                        },
+                        {
+                            time: "21:00",
+                            type: "住宿",
+                            title: "回飯店休息 💤🌙",
+                            loc: "山形站前大和 ROYNET 酒店",
+                            color: "green",
+                            intro: "早點休息，明天前往銀山溫泉。😴",
+                        },
+                    ],
+                },
+                3: {
+                    title: "銀山溫泉 🕯️",
+                    date: "2026 / 01 / 22 (THU)",
+                    location: "Ginzan",
+                    events: [
+                        {
+                            time: "09:00",
+                            type: "用餐",
+                            title: "早餐 🍙 飯店早餐，有日式西式兩種",
+                            loc: "登起波 山形店 (米澤牛)",
+                            color: "red",
+                            intro: "<a href='https://nicklee.tw/3262/roynet-yamagata/' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>山形住宿-早餐是米澤牛專門店「登起波」</a>",
+                        },
+                        {
+                            time: "10:00",
+                            type: "住宿",
+                            title: "整理行李 🏨",
+                            loc: "山形站前大和 ROYNET 酒店",
+                            color: "green",
+                            intro: "11:00退房，行李先寄放在飯店。",
+                        },
+                        {
+                            time: "11:00",
+                            type: "購物",
+                            title: "車站周邊逛逛 🛍️",
+                            loc: "Yamagata Station",
+                            color: "orange",
+                            intro: "退房後在車站逛逛買伴手禮、補給糧食。",
+                        },
+                        {
+                            time: "12:30",
+                            type: "交通",
+                            title: "新幹線前往大石田站 🚅",
+                            loc: "Yamagata Station",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>山形新幹線（Yamagata Shinkansen）</b>\n" +
+                                "翼（Tsubasa）177  12:32-13:01 📍\n" +
+                                "翼（Tsubasa）133  12:45-13:16",
+                            note: "<a href='https://maps.app.goo.gl/WWWSphP1K4ijkeZx9'target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Yamazaki</a>：上銀山前的最後一間商店",
+                            intro: "已預先劃位，車程約 30 分鐘",
+                        },
+                        {
+                            time: "13:40",
+                            type: "交通",
+                            title: "銀山溫泉旅館接駁車 🚌",
+                            loc: "大石田站前",
+                            color: "blue",
+                            note: "\n已預約銀山莊飯店接駁車，予約番号 33066。\n" +
+                                "住宿介紹：<a href='https://nicklee.tw/2186/ginzanonsen-ginzanso/'target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>銀山溫泉住宿-仙峽之宿-銀山莊|房間內就可泡湯看風景,還有新幹線車站免費接送</a>",
+                            intro: "準備前往銀山溫泉！🌨️車程約40分鐘。",
+                        },
+                        {
+                            time: "14:30",
+                            type: "觀光",
+                            title: "銀山溫泉散策 📸",
+                            loc: "Ginzan Onsen",
+                            color: "purple",
+                            note: "\n"+
+                                "• 飯店有提供外出可以穿的防水禦寒外套跟雨靴。\n"+
+                                "• 步行到主要街道上約需5-8分鐘。\n"+
+                                "• 必拍：紅色小橋、復古建築、能登屋。\n" +
+                                "• <a href='https://journey.tw/ginzan-onsen/'target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>銀山溫泉・走進《神隱少女》裡的魔幻街道！大正浪漫色彩濃厚的銀山溫泉一日遊</a>",
+                            intro: "溫泉街上走走、泡溫泉、吃東西。",
+                        },
+                        {
+                            time: "18:00",
+                            type: "用餐",
+                            title: "晚餐 🍱 銀山莊",
+                            loc: "銀山溫泉 仙峽之宿 銀山莊",
+                            color: "red",
+                            note: "實際用餐時間配合飯店安排。",
+                            intro: "有和牛以及海鮮的懷石套餐。",
+                        },
+                        {
+                            time: "20:00",
+                            type: "住宿",
+                            title: "泡溫泉+休息 ♨️",
+                            loc: "銀山溫泉 仙峽之宿 銀山莊",
+                            color: "green",
+                            note: "\n"+
+                                "• 提供飲料自助吧、咖啡機\n" +
+                                "• 大眾浴場的休閒區有提供免費酒水(15:00~23:00)，清酒的部分是當地的地酒，也有啤酒和調酒可以做選擇，種類很多。",
+                            intro: "露天溫泉請務必體驗！！！",
+                        },
+                    ],
+                },
+                4: {
+                    title: "返回東京 🗼",
+                    date: "2026 / 01 / 23 (FRI)",
+                    location: "Tokyo",
+                    events: [
+                        {
+                            time: "08:30",
+                            type: "用餐",
+                            title: "早餐 🍱 銀山莊",
+                            loc: "銀山溫泉 仙峽之宿 銀山莊",
+                            color: "red",
+                            transport: "吃完先回房收拾行李，10:00 退房",
+                            intro: "會席型式的早餐",
+                        },
+                        {
+                            time: "10:00",
+                            type: "觀光",
+                            title: "銀山溫泉街逛逛 📸",
+                            loc: "Ginzan Onsen",
+                            color: "purple",
+                            note: "離開前可以吃點東西，下午要搭 3 小時的新幹線。",
+                            intro: "趁著遊客較少的上午再次拍照逛逛，中午離開銀山溫泉區。",
+                        },
+                        {
+                            time: "12:30",
+                            type: "交通",
+                            title: "旅館接駁車回大石田站 🚌",
+                            loc: "銀山溫泉 仙峽之宿 銀山莊",
+                            color: "blue",
+                            transport: "🚌 12:30 接駁車從銀山莊到大石田站（約40分鐘）",
+                            intro: "搭乘接駁車回大石田站轉乘新幹線。",
+                        },
+                        {
+                            time: "13:30",
+                            type: "交通",
+                            title: "新幹線回東京 🚅",
+                            loc: "大石田站前",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>山形新幹線（Yamagata Shinkansen）</b>\n" +
+                                "翼（Tsubasa）144  13:33-16:42 📍\n" +
+                                "翼（Tsubasa）188  14:11-17:30",
+                            note: "需要的話可以買一些食物車上吃，或前一天預先準備。",
+                            intro: "大石田 到 JR上野站，已預先劃位，車程約 3 小時",
+                        },
+                        {
+                            time: "17:00",
+                            type: "住宿",
+                            title: "ACROSS Akihabara 民宿 Check-in 🏨 ",
+                            loc: "アクロス秋葉原",
+                            color: "green",
+                            transport:
+                                "• 步行約13分鐘\n" +
+                                "• JR山手線到到御徒町站，南口出站步行約7分鐘\n" +
+                                "• 地鐵日比谷線到仲御徒町站，2號出口出站步行約6分鐘",
+                            note: "入住資訊",
+                            intro: "民宿入住放行李。",
+                        },
+                        {
+                            time: "17:30",
+                            type: "用餐",
+                            title: "晚餐 🍜 阿美橫町或超市買回去煮",
+                            loc: "上野阿美橫商店街",
+                            color: "red",
+                            intro: "不管吃什麼，記得購買明天的早餐！",
+                        },
+                        {
+                            time: "22:00",
+                            type: "住宿",
+                            title: "請早點休息 💤",
+                            loc: "アクロス秋葉原",
+                            color: "green",
+                            intro: "早點休息！明天一早要去滑雪場！",
+                        },
+                    ],
+                },
+                5: {
+                    title: "GALA 滑雪場 ⛷️",
+                    date: "2026 / 01 / 24 (SAT)",
+                    location: "Gala Yuzawa",
+                    events: [
+                        {
+                            time: "08:20",
+                            type: "交通",
+                            title: "前往JR上野車站 🧳",
+                            loc: "JR Ueno Station",
+                            color: "blue",
+                            transport:
+                                "步行約13分鐘",
+                            note: "前一天買好早餐，或上野車站買早餐車上吃。",
+                            intro: "帶空行李箱買米跟酒！",
+                        },
+                        {
+                            time: "09:00",
+                            type: "交通",
+                            title: "JR上野 ➔ GALA湯澤 🚅",
+                            loc: "JR Ueno Station",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>上越新幹線</b>\n" +
+                                "TANIGAWA 81  08:36-09:49" +
+                                "TANIGAWA 177 09:05-10:35 📍\n" +
+                                "TANIGAWA 83  09:58-11:16",
+                            note: "已預先劃位，車程約75分鐘。",
+                            intro: "車站即是滑雪場！持 JR Pass 可享租借優惠。",
+                        },
+                        {
+                            time: "10:30",
+                            type: "觀光",
+                            title: "玩雪體驗 ⛷️",
+                            loc: "GALA湯澤滑雪場",
+                            color: "purple",
+                            note: 
+                                "\n" +
+                                "建議租借防水手套與護目鏡。\n" +
+                                "<a href='https://www.jrtimes.tw/article.aspx?article_id=611' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>滑雪小白上課啦！全世界最懶人友善的滑雪場，下課後食堂報到，一網打盡新潟縣的在地美食</a>",
+                            intro: "到GALA滑雪場買纜車票，纜車上去後可以租借雪盆、吃午餐，玩完下山。",
+                        },
+                        {
+                            time: "14:00",
+                            type: "購物",
+                            title: "GALA湯澤 ➔ 越後湯澤站 🚕",
+                            loc: "越後湯澤車站",
+                            color: "orange",
+                            transport: "搭計程車前往越後湯澤站",
+                            note:
+                                "\n" +
+                                "• <a href='https://www.bring-you.info/zh-tw/echigo-yuzawa-station' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>【日本新潟】超好逛的越後湯澤車站 - 必買特產、清酒</a>\n" +
+                                "• <a href='https://maps.app.goo.gl/SFXZ9FgGtrgBYabp8' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>清酒博物館：利き酒 越乃室</a>：¥500試喝5種酒\n" +
+                                "• <a href='https://maps.app.goo.gl/P9eJXf1KpsM3DrxR7' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>駅中弁当 雪ん洞，爆弾おにぎり</a>：爆彈飯糰",
+                            intro: "越後湯澤車站逛逛、買新潟米。",
+                        },
+                        {
+                            time: "17:00",
+                            type: "交通",
+                            title: "越後湯澤站 ➔ JR上野站 🚅",
+                            loc: "越後湯澤車站",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>上越新幹線</b>\n" +
+                                "TANIGAWA 86  17:08-18:18" +
+                                "TOKI 330     17:16-18:34 📍\n" +
+                                "TOKI 332    17:41-18:54",
+                            note: "已預先劃位，車程約70分鐘。",
+                            intro: "買完東西回民宿！。",
+                        },
+                        {
+                            time: "19:00",
+                            type: "用餐",
+                            title: "晚餐 🍜 阿美橫町或超市買回去煮",
+                            loc: "上野阿美橫商店街",
+                            color: "red",
+                        },
+                    ],
+                },
+                6: {
+                    title: "東京自由行 🛍️",
+                    date: "2026 / 01 / 25 (SUN)",
+                    location: "Tokyo",
+                    events: [
+                        {
+                            time: "10:00",
+                            type: "購物",
+                            title: "東京站一番街 🛍️",
+                            loc: "東京站一番街",
+                            color: "orange",
+                            intro: "有大丸百貨和各式的美食，喜歡逛街買伴手禮還有動漫的都可以在這裡一次買足，不想逛街的可以在這裡好好的享受美食和咖啡飲料的餐廳。",
+                        },
+                        {
+                            time: "12:00",
+                            type: "用餐",
+                            title: "午餐 🍰 HARBS",
+                            loc: "HARBS LUMINE有樂町店",
+                            color: "red",
+                            intro: "收下午3時前提供午餐套餐，¥2,400包含沙拉、義大利麵、蛋糕，份量非常足夠，食物美味，餐廳環境舒服。",
+                        },
+                        {
+                            time: "14:00",
+                            type: "購物",
+                            title: "銀座逛街 🛍️",
+                            loc: "銀座",
+                            color: "orange",
+                            intro: 
+                                "\n" +
+                                "• <a href='https://maps.app.goo.gl/soPEPfFEirfvTPca8' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Uniqlo Ginza Flagship Store</a>：銀座UQ旗艦店\n" +
+                                "• <a href='https://maps.app.goo.gl/d6uLQptRz6nsp13r9' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Marronnier Gate 銀座2館</a>：UQ, GU, PLST, THREEPPY, 大創, 藏壽司\n" +
+                                "• <a href='https://maps.app.goo.gl/dJ3AbrJ9LHdEiZUcA' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>無印良品 銀座旗艦店</a>：無印良品銀座旗艦店\n" +
+                                "• <a href='https://maps.app.goo.gl/f3WBQmTLwgRZRZLD7' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Ginza Loft</a>：藥妝、生活雜貨\n" +
+                                "• <a href='https://maps.app.goo.gl/5cqFGA7adEKAMjWh6' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>3COINS+plus 西銀座百貨店</a>：煮蛋器、微波煎魚器\n",
+                        },
+                        {
+                            time: "18:00",
+                            type: "用餐",
+                            title: "晚餐 🍜 AFURI拉麵 ",
+                            loc: "AFURI 有樂町",
+                            color: "red",
+                            intro: "經典柚子鹽拉麵。",
+                        },
+                    ],
+                },
+                7: {
+                    title: "鎌倉一日遊 🌊",
+                    date: "2026 / 01 / 26 (MON)",
+                    location: "Kamakura",
+                    events: [
+                        {
+                            time: "09:00",
+                            type: "交通",
+                            title: "前往鎌倉 🚆",
+                            loc: "御徒町站",
+                            color: "blue",
+                            transport:
+                                "看當天情況靈活調整\n" +
+                                "• JR山手線到到新橋站，轉橫須賀線到鎌倉\n" +
+                                "• 京濱東北線線到品川，轉橫須賀線到鎌倉",
+                            intro: "從大城市移動到海邊小鎮，車程約1~2小時。",
+                        },
+                        {
+                            time: "11:00",
+                            type: "觀光",
+                            title: "洗錢神社 💰",
+                            loc: "錢洗弁財天宇賀福神社",
+                            color: "purple",
+                            transport: "🚶 步行約20分鐘到錢洗弁財天\n🚕 體力不好的人，建議就搭計程車去吧",
+                            note: "\n" +
+                                "• 有在用的紙鈔都可以洗，零錢也可以\n" +
+                                "• 也有人洗信用卡等卡片\n" +
+                                "• 但洗完後要當錢母，不要花掉喔！\n" +
+                                "• <a href='https://maps.app.goo.gl/TobXFvX3wuHrc3F37' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Bentenjaya Teahouse</a>：烤糰子",
+                            intro: "位於鎌倉山谷中的錢洗弁天神社，要穿過一條隧道才能抵達，造訪日本的財運神社，體驗俗稱「洗錢」的祈福儀式。",
+                        },
+                        {
+                            time: "12:30",
+                            type: "用餐",
+                            title: "午餐 🍽️ 小町通商店街",
+                            loc: "小町通商店街",
+                            color: "red",
+                            transport: "🚶 步行約20分鐘到小町通商店街",
+                            intro: "在小町通商店街找間餐廳吃飯，或是走走逛逛吃小吃。",
+                        },
+                        {
+                            time: "14:00",
+                            type: "觀光",
+                            title: "小町通商店街 🧱",
+                            loc: "小町通商店街",
+                            color: "purple",
+                            note:
+                                "\n" +
+                                "• <a href='https://bobbyfun.tw/komachidori/' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>【鎌倉】小町通商店街：Top12美食必買推薦！大佛燒、咖哩麵包、釜飯大滿足</a>\n" +
+                                "• <a href='https://maps.app.goo.gl/rcpFxkHUTPiLcCvx6' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Giraffa Curry Pan</a>：咖哩麵包\n" +
+                                "• <a href='https://maps.app.goo.gl/19jbAhsebJJdiEYcA' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Tomoya Kamakura Komachi</a>：大佛燒\n" +
+                                "• <a href='https://maps.app.goo.gl/bg4sVKg194Sx33qj6' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Sakura no Yumemiya</a>：糰子\n" +
+                                "• <a href='https://maps.app.goo.gl/rL17hWSi6Lx8CcmQ8' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>Kamakura Chacha Komachi Street</a>：抹茶冰淇淋\n" +
+                                "• <a href='https://maps.app.goo.gl/DUMj8msreYgzp5YL8' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>鎌倉紅谷 八幡宮前本店</a>：松鼠核桃糕",
+                            intro: "位於鐮倉站前的鶴岡八幡小町通，直通至鶴岡八幡宮旁，商店街涵蓋著美食、購物與各項流行元素，是來鐮倉旅遊充分可以體驗湘南文化的景點之一。",
+                        },
+                        {
+                            time: "16:00",
+                            type: "交通",
+                            title: "回到新宿 🚆",
+                            loc: "Kamakura Station",
+                            color: "blue",
+                            transport: "15:07/15:36/16:01 搭乘湘南新宿線 到 新宿站",
+                            intro: "車程約1小時15分鐘。",
+                        },
+                        {
+                            time: "18:00",
+                            type: "用餐",
+                            title: "晚餐 🍽️ 檸檬牛舌",
+                            loc: "Gyu Tongue Lemon Shinjuku",
+                            color: "red",
+                            transport: "🚶 從新宿站步行約10分鐘",
+                            note: "已訂位18:00",
+                            intro: "牛舌料理是主要品項，還有搭配A5黑毛和牛的各種烹調，口味相當不錯，肉質也是不在話下。",
+                        },
+                        {
+                            time: "20:00",
+                            type: "購物",
+                            title: "運動用品店 🛍️",
+                            loc: "Sports wear Disc. Alpen Tokyo",
+                            color: "orange",
+                            intro: "在新宿，很大，運動鞋，衣服品牌很多，可以多方面選擇，有退稅服務。",
+                        },
+                        {
+                            time: "21:00",
+                            type: "購物",
+                            title: "澀谷唐吉訶德 🛍️",
+                            loc: "MEGA唐吉訶德 澀谷本店",
+                            color: "orange",
+                            transport: "🚆 從新宿站搭乘山手線前往約10分鐘",
+                            intro: "來到澀谷，MEGA唐吉訶德 絕對是必逛聖地！這間24小時營業的旗艦店共有多層樓，從零食、美妝、藥妝、玩具、電器到精品名牌通通有。",
+                        },
+                    ],
+                },
+                8: {
+                    title: "淺草與賦歸 ⛩️",
+                    date: "2026 / 01 / 27 (TUE)",
+                    location: "Tokyo",
+                    events: [
+                        {
+                            time: "09:00",
+                            type: "住宿",
+                            title: "Checkout 🏨",
+                            loc: "京成上野站",
+                            color: "green",
+                            intro: "辦理退房手續，步行約13分鐘到 京成上野站 寄放行李。",
+                        },
+                        {
+                            time: "09:30",
+                            type: "觀光",
+                            title: "淺草寺 ⛩️",
+                            loc: "淺草寺 雷門",
+                            color: "purple",
+                            transport: "🚆 從<a href = 'https://maps.app.goo.gl/jNpewX4b36ESS8qM6' target='_blank' onclick='event.stopPropagation()' class='text-[#B495C7] underline underline-offset-2 font-normal hover:text-[#92afd6] transition-colors'>地鐵上野站</a>，搭地鐵銀座線到淺草站",
+                            intro: "到淺草寺參拜、吃小點心，必吃淺草炸肉餅！！",
+                        },
+                        {
+                            time: "11:00",
+                            type: "觀光",
+                            title: "晴空塔 ⭐️",
+                            loc: "東京晴空塔",
+                            color: "purple",
+                            transport: "🚆 從淺草站搭地鐵淺草線到押上站",
+                            note: "最晚14:00要離開",
+                            intro: "可以逛街、購物、吃點心，裡面也有水族館可以參觀。",
+                        },
+                        {
+                            time: "14:30",
+                            type: "用餐",
+                            title: "午餐 🥩 敘敘苑 上野丸井店",
+                            loc: "敘敘苑 上野丸井店",
+                            color: "red",
+                            transport: "🚆 從押上站搭地鐵淺草線到淺草，再從淺草搭地鐵銀座線到上野站",
+                            note: "已訂位14:30",
+                            intro: "午間套餐非常划算，吃飽還能慢慢下來逛街，Loft GAP 無印良品 plaza。",
+                        },
+                        {
+                            time: "16:40",
+                            type: "交通",
+                            title: "京成上野站Skyliner前往成田機場T2 🚅",
+                            loc: "京成上野站",
+                            color: "blue",
+                            transport:
+                                "🚇 <b>Skyliner</b>\n" +
+                                "65 16:20-17:01 \n" +
+                                "67 16:40-17:21📍\n" +
+                                "69 17:00-17:41",
+                            note: "記得先去拿行李！！！！",
+                            intro: "東西都要記得帶走，車程約40分鐘。",
+                        },
+                        {
+                            time: "17:30",
+                            type: "購物",
+                            title: "機場逛街 🛍️",
+                            loc: "成田機場第二航廈",
+                            color: "orange",
+                            intro: "機場最後逛街。",
+                        },
+                        {
+                            time: "18:10",
+                            type: "交通",
+                            title: "成田機場T2報到 🛫",
+                            loc: "成田機場第二航廈",
+                            color: "blue",
+                            transport: "✈️ 星宇航空 JX850\n起飛 NRT成田T2 20:10 \n 抵達 TPE桃園T1 23:20",
+                            intro: "手提行李7公斤，託運2件各23公斤。",
+                        },
+                        {
+                            time: "23:20",
+                            type: "交通",
+                            title: "降落台灣 🛬",
+                            loc: "桃園機場第一航廈",
+                            color: "blue",
+                            note: "第一航廈。",
+                            intro: "順利抵達桃園機場，結束8天旅程。",
+                        },
+                    ],
+                },
+            };
+
+            const phrasesData = [
+                {
+                    cat: "一、萬用開場句",
+                    list: [
+                        { zh: "不好意思 (問路/叫人)", en: "Excuse me.", jp: "すみません。", pron: "Sumimasen." },
+                        { zh: "謝謝您", en: "Thank you very much.",jp: "ありがとうございます。", pron: "Arigatou gozaimasu." },
+                        { zh: "沒問題／不用了", en: "It's okay. / No, thank you.", jp: "大丈夫です。", pron: "Daijoubu desu." },
+                        {
+                            zh: "我不太會日文",
+                            en: "I don’t understand Japanese very well.",
+                            jp: "日本語があまり分かりません。",
+                            pron: "Nihongo ga amari wakarimasen.",
+                        },
+                        {
+                            zh: "可以說慢一點嗎？",
+                            en: "Could you speak more slowly?",
+                            jp: "ゆっくり話してもらえますか。",
+                            pron: "Yukkuri hanashite moraemasu ka?",
+                        },
+                    ],
+                },
+                {
+                    cat: "二、餐廳常用對話",
+                    list: [
+                        { zh: "一位／兩位", en: "One person / Two people.", jp: "一人です。／二人です。", pron: "Hitori desu. / Futari desu." },
+                        { zh: "我有訂位", en: "I have a reservation.", jp: "予約しています。", pron: "Yoyaku shite imasu." },
+                        { zh: "我沒有訂位", en: "I don’t have a reservation.", jp: "予約していません。", pron: "Yoyaku shite imasen." },
+                        { zh: "我要這個 (指菜單)", en: "I’ll have this, please.", jp: "これをください。", pron: "Kore o kudasai." },
+                        { zh: "有什麼推薦的？", en: "What do you recommend?", jp: "おすすめは何ですか？", pron: "Osusume wa nan desu ka?" },
+                        { zh: "請結帳", en: "Check, please.", jp: "お会計お願いします。", pron: "Okaikei onegaishimasu." },
+                    ],
+                },
+                {
+                    cat: "三、購物與結帳時",
+                    list: [
+                        { zh: "這個多少錢？", en: "How much is this?", jp: "これ,いくらですか？", pron: "Kore, ikura desu ka?" },
+                        {
+                            zh: "可以刷卡嗎？",
+                            en: "Can I pay by credit card?",
+                            jp: "クレジットカードは使えますか？",
+                            pron: "Kurejitto kaado wa tsukaemasu ka?",
+                        },
+                        { zh: "我要付現金", en: "I’ll pay with cash.", jp: "現金でお願いします。", pron: "Genkin de onegaishimasu." },
+                        { zh: "不需要袋子", en: "No bag, please.", jp: "袋はいりません。", pron: "Fukuro wa irimasen." },
+                        { zh: "可以免稅嗎？", en: "Is this tax-free?", jp: "免税できますか？", pron: "Menzei dekimasu ka?" },
+                    ],
+                },
+                {
+                    cat: "四、交通與搭車",
+                    list: [
+                        { zh: "這裡是 ○○ 嗎？", en: "Is this ○○?", jp: "ここは○○ですか？", pron: "Koko wa ○○ desu ka?" },
+                        { zh: "○○ 在哪裡？", en: "Where is ○○?", jp: "○○はどこですか？", pron: "○○ wa doko desu ka?" },
+                        {
+                            zh: "這班車會到 ○○ 嗎？",
+                            en: "Does this train go to ○○?",
+                            jp: "この電車は○○に行きますか？",
+                            pron: "Kono densha wa ○○ ni ikimasu ka?",
+                        },
+                        { zh: "可以用 Suica 嗎？", en: "Can I use Suica?", jp: "Suicaは使えますか？", pron: "Suica wa tsukaemasu ka?" },
+                    ],
+                },
+                {
+                    cat: "五、飯店常用",
+                    list: [
+                        { zh: "我要辦理入住", en: "I’d like to check in.", jp: "チェックインをお願いします。", pron: "Check-in o onegaishimasu." },
+                        { zh: "我要退房", en: "I’d like to check out.", jp: "チェックアウトをお願いします。", pron: "Check-out o onegaishimasu." },
+                        { zh: "我是預約的 Liang", en: "I have a reservation under the name Liang.", jp: "予約のワンです。", pron: "Yoyaku no Wan desu." },
+                        {
+                            zh: "可以寄放行李嗎？",
+                            en: "Could you store my luggage?",
+                            jp: "荷物を預かってもらえますか？",
+                            pron: "Nimotsu o azukatte moraemasu ka?",
+                        },
+                    ],
+                },
+                {
+                    cat: "六、遇到狀況時 (保命句)",
+                    list: [
+                        { zh: "我不太懂", en: "I don’t really understand.", jp: "ちょっと分かりません。", pron: "Chotto wakarimasen." },
+                        { zh: "請再說一次", en: "Could you say that again?", jp: "もう一度お願いします。", pron: "Mou ichido onegaishimasu." },
+                        { zh: "請幫幫我 (緊急)", en: "Please help me!", jp: "助けてください。", pron: "Tasukete kudasai." },
+                    ],
+                },
+                {
+                    cat: "七、日本人超愛的一句 (加分)",
+                    list: [
+                        {
+                            zh: "沒關係,謝謝你",
+                            en: "It’s okay, thank you.",
+                            jp: "大丈夫です,ありがとうございます。",
+                            pron: "Daijoubu desu, arigatou gozaimasu.",
+                        },
+                    ],
+                },
+            ];
+
+            const checklistData = [
+                {
+                    category: "一、證件與重要文件",
+                    items: [
+                        "護照（建議有效期限 6 個月以上）",
+                        "機票或電子機票",
+                        "信用卡（建議至少 1–2 張）",
+                        "日圓現金",
+                    ],
+                },
+                {
+                    category: "二、交通與支付用品",
+                    items: ["Suica／PASMO／ICOCA", "手機設定 Apple Pay／Google Pay", "行動電源（低溫特別重要）"],
+                },
+                {
+                    category: "三、通訊與電子用品",
+                    items: ["eSIM／SIM 卡／Wi-Fi 分享器", "手機充電線", "耳機", "相機與拍攝設備"],
+                },
+                {
+                    category: "四、衣物與隨身用品",
+                    items: [
+                        "外套（建議羽絨衣）",
+                        "發熱衣或保暖內層",
+                        "厚襪子",
+                        "好走、防滑的鞋子",
+                        "圍巾、手套、帽子",
+                        "折疊雨傘",
+                    ],
+                },
+                {
+                    category: "五、個人清潔與保養",
+                    items: ["牙刷、牙膏", "保養與化妝用品", "護唇膏", "護手霜", "保濕噴霧", "口罩（防寒防乾燥）"],
+                },
+                { category: "六、醫藥與健康用品", items: ["個人常備藥", "感冒藥、腸胃藥", "OK 繃", "乾洗手／濕紙巾"] },
+                { category: "七、其他實用小物", items: ["摺疊購物袋", "面紙", "小塑膠袋", "行李鎖與吊牌"] },
+            ];
+
+            const tipsData = [
+                {
+                    title: "低溫防寒",
+                    icon: "alert-circle",
+                    content:
+                        "室外寒冷、室內暖氣強，溫差極大，能隨時穿脫才是關鍵。發熱衣、保暖中層與外套分層搭配，進室內即可脫外層，避免流汗後著涼。",
+                },
+                {
+                    title: "地面防滑",
+                    icon: "snowflake",
+                    color: "text-blue-400",
+                    content: "地面經常結冰（黑冰），請穿防滑鞋、放慢腳步並採取小碎步避免滑倒。",
+                },
+                {
+                    title: "室內乾燥",
+                    icon: "droplets",
+                    color: "text-blue-400",
+                    content:
+                        "冬季室內空氣非常乾燥，暖氣長時間開啟容易讓皮膚乾癢、嘴唇乾裂，甚至流鼻血，建議隨身攜帶乳液、護手霜與護唇膏，隨時補擦。",
+                },
+                {
+                    title: "室內禮儀",
+                    icon: "moon",
+                    color: "text-slate-400",
+                    content: "進室內前拍掉鞋底積雪以及脫下冰爪，避免地板打滑或破壞地面。",
+                },
+                {
+                    title: "行走安全",
+                    icon: "navigation",
+                    color: "text-emerald-400",
+                    content: "請避免邊走邊滑手機，以免發生危險。",
+                },
+                {
+                    title: "日照時間",
+                    icon: "clock",
+                    color: "text-orange-400",
+                    content: "冬季下午四~五點天色即變暗，建議努力起床提早出門，行程盡量排在白天。",
+                },
+                {
+                    title: "手機電量",
+                    icon: "alert-circle",
+                    color: "text-blue-500",
+                    content: "低溫會讓手機耗電極快，請務必隨身攜帶行動電源。",
+                },
+            ];
+
+            const typeColors = {
+                blue: "bg-blue-50 text-[#6D7B86]",
+                orange: "bg-orange-50 text-[#6D7B86]",
+                green: "bg-emerald-50 text-[#6D7B86]",
+                red: "bg-rose-50 text-[#6D7B86]",
+                purple: "bg-purple-50 text-[#6D7B86]",
+            };
+
+            let currentView = "home";
+
+            function createSnow() {
+                const container = document.getElementById("snow-container");
+                for (let i = 0; i < 20; i++) {
+                    const snow = document.createElement("div");
+                    snow.className = "snow-particle";
+                    const size = Math.random() * 4 + 2;
+                    snow.style.width = size + "px";
+                    snow.style.height = size + "px";
+                    snow.style.left = Math.random() * 100 + "vw";
+                    snow.style.top = "-10vh";
+                    snow.style.animation = `snowfall ${Math.random() * 10 + 10}s linear infinite`;
+                    snow.style.animationDelay = `${Math.random() * 5}s`;
+                    container.appendChild(snow);
+                }
+            }
+
+            function setView(view) {
+                currentView = view;
+                renderContent();
+                renderNav();
+                window.scrollTo(0, 0);
+            }
+
+            function openTranslation(zh, en, jp, pron) {
+                const modal = document.getElementById("translation-modal");
+                document.getElementById("modal-zh").innerText = zh;
+                document.getElementById("modal-en").innerText = en;
+                document.getElementById("modal-jp").innerText = jp;
+                document.getElementById("modal-pron").innerText = pron;
+                modal.style.display = "flex";
+            }
+
+            function closeTranslation() {
+                document.getElementById("translation-modal").style.display = "none";
+            }
+
+            function renderNav() {
+                const btns = document.querySelectorAll("nav button");
+                btns.forEach((b) => b.classList.remove("bg-[#92afd6]", "text-white"));
+
+                const btnHome = document.getElementById("btn-home");
+                const btnCheck = document.getElementById("btn-checklist");
+                const btnTips = document.getElementById("btn-tips");
+                const btnLang = document.getElementById("btn-lang");
+
+                if (currentView === "home") btnHome.classList.add("bg-[#92afd6]", "text-white");
+                else if (currentView === "checklist") btnCheck.classList.add("bg-[#92afd6]", "text-white");
+                else if (currentView === "tips") btnTips.classList.add("bg-[#92afd6]", "text-white");
+                else if (currentView === "lang") btnLang.classList.add("bg-[#92afd6]", "text-white");
+
+                const dayBtns = document.querySelectorAll(".day-btn");
+                dayBtns.forEach((b, i) => {
+                    const day = i + 1;
+                    if (currentView === day) {
+                        b.classList.add("bg-[#92afd6]", "text-white");
+                        b.classList.remove("text-[#8A9DA8]");
+                    } else {
+                        b.classList.remove("bg-[#92afd6]", "text-white");
+                        b.classList.add("text-[#8A9DA8]");
+                    }
+                });
+            }
+
+            function renderContent() {
+                const container = document.getElementById("main-content");
+                const titleEl = document.getElementById("header-title");
+                const subtitleEl = document.getElementById("header-subtitle");
+                const tempEl = document.getElementById("temp-val");
+                const locEl = document.getElementById("header-loc");
+
+                container.innerHTML = "";
+                container.classList.remove("timeline-line");
+
+                if (currentView === "home") {
+                    titleEl.innerText = "行程總覽 🏠";
+                    subtitleEl.innerText = "Trip Summary";
+                    locEl.innerText = "Yamagata";
+                    container.innerHTML = `
+                     <div class="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-12">
+                         <!-- 1. 路線圖 (中文) -->
+                         <div class="bg-white rounded-3xl p-6 shadow-sm text-center">
+                             <h4 class="text-xs font-black text-[#92afd6] uppercase tracking-widest mb-4">路線總覽</h4>
+                             <div class="flex justify-around items-center text-[12px] font-bold text-[#6D7B86]">
+                                 <span>山形</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#BFCCD4]"></i>
+                                 <span>藏王</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#BFCCD4]"></i>
+                                 <span>銀山</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#BFCCD4]"></i>
+                                 <span>湯澤</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#BFCCD4]"></i>
+                                 <span>東京</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#BFCCD4]"></i>
+                                 <span>鎌倉</span><i data-lucide="chevron-right" class="w-3 h-3 text-[#BFCCD4]"></i>
+                                 <span>淺草</span>
+                             </div>
+                         </div>
+         
+                         <!-- 2. 機票資訊 -->
+                         <div class="grid grid-cols-1 gap-3">
+                             <div class="bg-white p-6 rounded-3xl shadow-sm">
+                                 <div class="flex justify-between items-start mb-4 border-b border-[#c8dae8] pb-3">
+                                     <div><p class="text-[10px] text-[#9FB5C3] uppercase">D1 Depart Flight</p><h4 class="text-xl font-black text-[#6D7B86]">MM 620</h4></div>
+                                     <div class="text-right"><p class="text-[11px] font-bold text-[#92afd6]">2026-01-20</p><p class="text-[11px] text-[#9FB5C3]">樂桃航空</p></div>
+                                 </div>
+                                 <div class="flex justify-between items-center px-2">
+                                     <div class="text-center"><p class="text-xl font-black text-[#6D7B86]">02:10</p><p class="text-xs text-[#8A9DA8]">桃園 (TPE T1)</p></div>
+                                     <i data-lucide="plane" class="text-[#BFCCD4] w-5 h-5"></i>
+                                     <div class="text-center"><p class="text-xl font-black text-[#6D7B86]">06:40</p><p class="text-xs text-[#8A9DA8]">成田 (NRT T1)</p></div>
+                                 </div>
+                             </div>
+                             <div class="bg-white p-6 rounded-3xl shadow-sm">
+                                 <div class="flex justify-between items-start mb-4 border-b border-[#c8dae8] pb-3">
+                                     <div><p class="text-[10px] text-[#9FB5C3] uppercase">D8 Return Flight</p><h4 class="text-xl font-black text-[#6D7B86]">JX 805</h4></div>
+                                     <div class="text-right"><p class="text-[11px] font-bold text-[#92afd6]">2026-01-27</p><p class="text-[11px] text-[#9FB5C3]">星宇航空</p></div>
+                                 </div>
+                                 <div class="flex justify-between items-center px-2">
+                                     <div class="text-center"><p class="text-xl font-black text-[#6D7B86]">20:10</p><p class="text-xs text-[#8A9DA8]">成田 (NRT T2)</p></div>
+                                     <i data-lucide="plane" class="text-[#BFCCD4] w-5 h-5 rotate-180"></i>
+                                     <div class="text-center"><p class="text-xl font-black text-[#6D7B86]">23:20</p><p class="text-xs text-[#8A9DA8]">桃園 (TPE T1)</p></div>
+                                 </div>
+                             </div>
+                         </div>
+         
+                         <!-- 3. 行李注意事項 -->
+                         <div class="bg-[#92afd6] rounded-3xl p-6 text-white shadow-xl">
+                             <div class="flex justify-between items-center mb-4">
+                                 <h4 class="text-base font-bold flex items-center gap-2"><i data-lucide="luggage"></i> 行李攜帶注意事項</h4>
+                                 <span class="text-[11px] border border-white/30 px-2 py-0.5 rounded-full">PEACH / STARLUX</span>
+                             </div>
+
+                             <div class="grid grid-cols-2 gap-4 mb-6 text-center">
+                                 <div class="bg-white/10 p-4 rounded-2xl">
+                                     <p class="text-[11px] opacity-70 uppercase font-bold mb-1">Checked 去程</p>
+                                     <p class="text-xl font-black">20 KG</p>
+                                 </div>
+                                 <div class="bg-white/10 p-4 rounded-2xl">
+                                     <p class="text-[11px] opacity-70 uppercase font-bold mb-1">Carry-on 去程</p>
+                                     <p class="text-xl font-black">7 KG <span class="text-[11px] font-normal opacity-70">x 2pcs</span></p>
+                                 </div>
+                             </div>
+
+                             <div class="grid grid-cols-2 gap-4 mb-6 text-center">
+                                 <div class="bg-white/10 p-4 rounded-2xl">
+                                     <p class="text-[11px] opacity-70 uppercase font-bold mb-1">Checked 回程</p>
+                                     <p class="text-xl font-black">46 KG <span class="text-[11px] font-normal opacity-70">x 2pcs</span></p>
+                                 </div>
+                                 <div class="bg-white/10 p-4 rounded-2xl">
+                                     <p class="text-[11px] opacity-70 uppercase font-bold mb-1">Carry-on 回程</p>
+                                     <p class="text-xl font-black">7 KG <span class="text-[11px] font-normal opacity-70">x 2pcs</span></p>
+                                 </div>
+                             </div>
+                             <div class="space-y-2">
+                                 <p class="text-sm font-bold text-[#c8dae8]">⚠️ 禁止託運 (必須隨身)：</p>
+                                 <p class="text-base opacity-90 leading-relaxed">• 行動電源、鋰電池、打火機(限一個)</p>
+                                 <p class="text-sm font-bold text-[#c8dae8] mt-3">🚫 禁止上機 (需託運/拋棄)：</p>
+                                 <p class="text-base opacity-90 leading-relaxed">• 單罐超過 100ml 之液體、噴霧、刀剪類</p>
+                             </div>
+                         </div>
+         
+                         <!-- 4. 住宿飯店資訊 -->
+                         <div class="bg-white rounded-3xl p-6 shadow-sm">
+                             <h4 class="text-sm font-black text-[#92afd6] uppercase tracking-widest mb-5">住宿飯店資訊</h4>
+                             <div class="space-y-8">
+                                 <div class="flex gap-5">
+                                     <div class="w-12 h-12 rounded-2xl bg-[#c0d2ea] flex flex-col items-center justify-center flex-shrink-0">
+                                         <span class="text-[10px] font-black text-[#92afd6]">JR</span><i data-lucide="mountain" class="w-4 h-4 text-[#92afd6]"></i>
+                                     </div>
+                                     <div><h5 class="text-base font-black text-[#6D7B86] leading-none mb-2">山形站前大和 ROYNET 酒店</h5><p class="text-base text-[#8A9DA8] leading-relaxed">山形車站東口步行約 3min。</p></div>
+                                 </div>
+
+                                 <div class="flex gap-5">
+                                     <div class="w-12 h-12 rounded-2xl bg-[#c0d2ea] flex flex-col items-center justify-center flex-shrink-0">
+                                         <i data-lucide="bath" class="w-5 h-5 text-[#92afd6]"></i>
+                                     </div>
+                                     <div><h5 class="text-base font-black text-[#6D7B86] leading-none mb-2">銀山溫泉 仙峽之宿 銀山莊</h5><p class="text-base text-[#8A9DA8] leading-relaxed">銀山溫泉街步行約5~10分鐘的溫泉飯店。</p></div>
+                                 </div>
+                                 
+                                 <div class="flex gap-5">
+                                     <div class="w-12 h-12 rounded-2xl bg-[#c0d2ea] flex flex-col items-center justify-center flex-shrink-0">
+                                         <span class="text-[10px] font-black text-[#8A9DA8]">STN</span><i data-lucide="landmark" class="w-3 h-3 text-[#92afd6]"></i>
+                                     </div>
+                                     <div><h5 class="text-base font-black text-[#6D7B86] leading-none mb-2">ACROSS Akihabara 民宿</h5><p class="text-base text-[#8A9DA8] leading-relaxed">位於御徒町站附近，也鄰近阿美橫町、上野站。</p></div>
+                                 </div>
+                             </div>
+                         </div>
+         
+                         <!-- 5. 旅遊地圖 (內嵌) -->
+                         <div class="bg-white rounded-3xl p-5 shadow-sm overflow-hidden text-center">
+                             <h4 class="text-xs font-black text-[#92afd6] uppercase tracking-widest mb-4 px-2">互動地圖清單</h4>
+                             <div class="aspect-square bg-[#c8dae8] rounded-2xl relative shadow-inner">
+                                 <iframe class="w-full h-full rounded-2xl" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d517803.3530198618!2d139.876511!3d38.448495!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x5f8aafce8c7a7b77%3A0x2c3f8bba6c3f1b16!2z5bGx5b2i55yM!5e0!3m2!1szh-TW!2stw" loading="lazy"></iframe>
+                                 <div class="absolute bottom-4 left-4 right-4">
+                                     <a href="https://maps.app.goo.gl/jgjbBh4n2CtYFRiD9" target="_blank" class="w-full py-4 bg-white/95 backdrop-blur shadow-xl rounded-2xl text-sm font-black text-[#92afd6] flex items-center justify-center gap-2">
+                                         <i data-lucide="map"></i> 開啟 Google Maps 清單
+                                     </a>
+                                 </div>
+                             </div>
+                         </div>
+         
+                         <!-- 6. JR Pass指南 -->
+                         <div class="bg-[#c0d2ea] rounded-3xl p-6 shadow-sm text-[#6D7B86]">
+                              <h4 class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="bus"></i> JR Pass搭乘指南</h4>
+                              <p class="text-base font-medium leading-relaxed">進站的時候 JR Pass 連同指定席票券一起放入閘門，記得取回！</p>
+                         </div>
+         
+                         <!-- 7. Visit Japan Web -->
+                         <div class="bg-[#6D7B86] rounded-3xl p-7 text-white text-center shadow-lg">
+                             <h4 class="text-base font-bold mb-3 text-[#D6DDD9]">重要：入境登記填寫</h4>
+                             <p class="text-[10px] opacity-60 mb-5 tracking-widest uppercase font-bold">Visit Japan Web</p>
+                             <a href="https://vjw-lp.digital.go.jp/zh-hant/" target="_blank" class="block w-full py-4 bg-white text-[#6D7B86] rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-transform">前往填寫入境手續 (必填)</a>
+                         </div>
+         
+                         <!-- 8. 緊急電話 -->
+                         <div class="bg-[#fde8e8] rounded-3xl p-6 shadow-sm text-red-600">
+                             <h4 class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="phone"></i> 緊急狀況聯繫</h4>
+                             <p class="text-base font-medium leading-relaxed font-bold">
+                                 外交部專線：0800-085-095<br>
+                                 駐札幌辦事處：+81-11-222-2930<br>
+                                 緊急熱線：110 (警) / 119 (救護) 表明台灣人
+                             </p>
+                         </div>
+                     </div>
+                 `;
+                } else if (typeof currentView === "number") {
+                    const data = tripData[currentView];
+                    titleEl.innerText = `Day ${currentView}: ${data.title}`;
+                    subtitleEl.innerText = data.date;
+
+                    // tempEl.innerText = currentView >= 6 ? "-2°C" : "-5°C";
+                    locEl.innerText = data.location;
+                    updateTemperatureByLocation(data.location);
+
+                    locEl.innerText = data.location;
+                    container.classList.add("timeline-line");
+
+                    let reminderMsg = "";
+                    if (currentView === 1) reminderMsg = "護照和SIM卡記得要帶！！";
+                    else if (currentView === 3) reminderMsg = "07:15 準時出發，一定要早起！";
+                    else if (currentView === 4) reminderMsg = "08:30 接駁車會準時來接！";
+                    else if (currentView === 5) reminderMsg = "12:45 接駁車,11:00 前要進湯咖哩！";
+                    else if (currentView === 6) reminderMsg = "今天的時間是自由的～";
+                    else if (currentView === 7) reminderMsg = "機場巴士 15:20/15:30";
+
+                    if (reminderMsg) {
+                        container.innerHTML += `<div class="relative z-10 mb-4 bg-[#fde8e8] rounded-2xl p-4 flex items-center gap-3 shadow-sm"><i data-lucide="alert-circle" class="w-5 h-5 text-red-500"></i><p class="text-base text-red-700 font-bold leading-tight">${reminderMsg}</p></div>`;
+                    }
+
+                    data.events.forEach((ev) => {
+                        const card = document.createElement("div");
+                        card.className = "relative z-10 group mb-4";
+                        // card.onclick = () => card.classList.toggle("expanded");
+                        card.onclick = (e) => {
+                            if (e.target.closest('a')) return; // 點到連結就不要展開/收合
+                            card.classList.toggle('expanded');
+                        };
+
+                        // 修正：note 部分使用 whitespace-pre-line 保留換行
+                        const noteHtml = ev.note
+                            ? `<div class="flex items-start text-[15px] text-[#6D7B86] font-medium mt-3 pt-3 border-t border-slate-50"><i data-lucide="info" class="w-4 h-4 mt-1 mr-2 text-[#9FB5C3] flex-shrink-0"></i><div class="whitespace-pre-line leading-relaxed">備註：${ev.note.replace(/(需備現金)/g, '<span class="text-red-500 font-bold">$1</span>')}</div></div>`
+                            : "";
+
+                        const transportHtml = ev.transport
+                            ? `<div class="bg-[#c0d2ea]/50 rounded-2xl p-3.5 border-l-4 border-[#92afd6] mb-4 shadow-sm"><div class="flex items-center text-[#6D7B86] text-xs font-bold mb-1.5"><i data-lucide="navigation" class="w-4 h-4 mr-2"></i> 交通資訊</div><div class="text-[14px] text-[#4a5568] whitespace-pre-line leading-relaxed font-medium">${ev.transport}</div></div>`
+                            : "";
+                        const mapLinkHtml = `<div class="flex items-center mt-2 gap-3"><p class="text-[12px] text-[#8A9DA8] flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-1.5"></i> ${ev.loc}</p><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.loc)}" target="_blank" class="p-2 rounded-full bg-[#f0f4f8] text-[#92afd6] active:scale-90 transition-all shadow-sm" onclick="event.stopPropagation()"><i data-lucide="external-link" class="w-4 h-4"></i></a></div>`;
+                        card.innerHTML = `
+                         <div class="flex gap-4">
+                             <div class="flex flex-col items-center flex-shrink-0 pt-1">
+                                 <span class="text-[14px] font-bold text-[#8A9DA8] mb-3 w-12 text-center uppercase tracking-tighter bg-[#F1F5F8] z-10 px-1">${ev.time}</span>
+                                 <div class="w-3 h-3 rounded-full border-2 border-white shadow-md ring-4 ring-[#F1F5F8] bg-[#9FB5C3] group-[.expanded]:bg-[#92afd6] transition-colors z-10"></div>
+                             </div>
+                             <div class="flex-grow bg-white rounded-3xl shadow-sm p-4 group-[.expanded]:shadow-lg transition-all">
+                                 <div class="flex justify-between items-start">
+                                     <div class="flex-grow">
+                                         <span class="inline-block text-[10px] font-black px-2.5 py-0.5 rounded-full ${typeColors[ev.color] || "bg-slate-50"} mb-2 uppercase tracking-wide">${ev.type || "行程"}</span>
+                                         <h3 class="text-[17px] font-black text-[#4a5568] leading-snug">${ev.title}</h3>
+                                         ${mapLinkHtml}
+                                     </div>
+                                     <i data-lucide="chevron-down" class="w-5 h-5 text-[#BFCCD4] transition-transform group-[.expanded]:rotate-180"></i>
+                                 </div>
+                                 <div class="expand-content">
+                                     <div class="space-y-4 pt-4 mt-4">
+                                         ${transportHtml}
+                                         <p class="text-[16px] text-[#6D7B86] leading-relaxed font-normal whitespace-pre-line">${ev.intro || ""}</p>
+                                         ${noteHtml}
+                                     </div>
+                                 </div>
+                             </div>
+                         </div>
+                     `;
+                        container.appendChild(card);
+                    });
+                } else if (currentView === "lang") {
+                    titleEl.innerText = "常用日文對話 🇯🇵";
+                    subtitleEl.innerText = "Travel Translation";
+                    const listDiv = document.createElement("div");
+                    listDiv.className = "space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-500 pb-12";
+                    phrasesData.forEach((cat) => {
+                        const section = document.createElement("div");
+                        section.innerHTML = `<h4 class="text-[13px] font-black text-[#6D7B86] uppercase tracking-widest mb-4 ml-2 border-l-4 border-[#92afd6] pl-3">${cat.cat}</h4>`;
+                        const grid = document.createElement("div");
+                        grid.className = "grid grid-cols-1 gap-4";
+                        cat.list.forEach((item) => {
+                            const div = document.createElement("div");
+                            div.className =
+                                "bg-white p-5 rounded-3xl shadow-sm active:scale-95 cursor-pointer transition-all";
+                            div.onclick = () => openTranslation(item.zh, item.en, item.jp, item.pron);
+                            div.innerHTML = `
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-xs font-black text-[#92afd6] bg-[#c0d2ea] px-3 py-1 rounded-full">
+                                        ${item.zh}
+                                    </span>
+                                    <i data-lucide="maximize-2" class="w-4 h-4 text-[#BFCCD4]"></i>
+                                </div>
+                                <p class="text-xl font-bold text-[#4a5568] leading-tight mb-1">
+                                    ${item.en}
+                                </p>
+                                <p class="text-sm text-[#6D7B86] font-medium mb-0.5">
+                                    ${item.jp}
+                                </p>
+                                <p class="text-sm text-[#8A9DA8] italic font-medium">
+                                    ${item.pron}
+                                </p>
+                            `
+                            grid.appendChild(div);
+                        });
+                        section.appendChild(grid);
+                        listDiv.appendChild(section);
+                    });
+                    container.appendChild(listDiv);
+                } else if (currentView === "checklist") {
+                    titleEl.innerText = "必備攜帶清單 🧳";
+                    subtitleEl.innerText = "Travel Preparation";
+                    const listDiv = document.createElement("div");
+                    listDiv.className = "space-y-5 animate-in fade-in slide-in-from-bottom-2 duration-500";
+                    checklistData.forEach((cat) => {
+                        const div = document.createElement("div");
+                        div.className = "bg-white rounded-3xl p-6 shadow-sm mb-4";
+                        div.innerHTML = `<h4 class="text-base font-black text-[#6D7B86] mb-5 border-b border-[#D6DDD9] pb-3 flex items-center gap-3"><i data-lucide="check-square" class="w-5 h-5 text-[#92afd6]"></i> ${cat.category}</h4><div class="grid grid-cols-1 gap-4">${cat.items.map((item) => `<label class="flex items-center gap-4 cursor-pointer check-item py-1.5"><input type="checkbox" class="hidden"><div class="w-6 h-6 rounded-full border-2 border-[#BFCCD4] transition-all flex-shrink-0"></div><span class="text-base text-[#4a5568] font-medium transition-all">${item}</span></label>`).join("")}</div>`;
+                        listDiv.appendChild(div);
+                    });
+                    container.appendChild(listDiv);
+                } else if (currentView === "tips") {
+                    titleEl.innerText = "冬季注意事項 ❄️";
+                    subtitleEl.innerText = "Guidance";
+                    tipsData.forEach((tip) => {
+                        const div = document.createElement("div");
+                        div.className = "bg-white rounded-3xl p-6 shadow-sm flex gap-5 mb-4";
+                        div.innerHTML = `<div class="mt-1 flex-shrink-0 bg-[#c0d2ea] w-12 h-12 rounded-2xl flex items-center justify-center"><i data-lucide="${tip.icon}" class="w-6 h-6 text-[#92afd6]"></i></div><div><h4 class="text-base font-black text-[#6D7B86] mb-2 leading-none">${tip.title}</h4><p class="text-base text-[#4a5568] opacity-90 leading-relaxed font-medium">${tip.content}</p></div>`;
+                        container.appendChild(div);
+                    });
+                }
+
+                lucide.createIcons();
+            }
+
+            window.onload = () => {
+                createSnow();
+                setView("home");
+            };
+        </script>
+    </body>
+</html>
